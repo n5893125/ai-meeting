@@ -1,18 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 const chatResponseSchema = {
-    type: Type.OBJECT,
+    type: SchemaType.OBJECT,
     properties: {
         feedback: {
-            type: Type.STRING,
+            type: SchemaType.STRING,
             description: "Concise feedback on the user's previous sentence, correcting grammar or suggesting more natural phrasing. If there are no errors, say something encouraging. This can be null if it's the first turn.",
+            nullable: true
         },
         english: {
-            type: Type.STRING,
+            type: SchemaType.STRING,
             description: "The dialogue line in English.",
         },
         chinese: {
-            type: Type.STRING,
+            type: SchemaType.STRING,
             description: "The dialogue line in Traditional Chinese.",
         },
     },
@@ -20,11 +21,11 @@ const chatResponseSchema = {
 };
 
 const createSystemInstruction = (level: string, theme: string): string => {
-    return `
+    return \
         You are an English teacher conducting a practice conversation with a student in a language learning app.
         The user is a Traditional Chinese speaker.
-        The conversation topic is: ${theme}.
-        The student's English difficulty level is: ${level}.
+        The conversation topic is: \.
+        The student's English difficulty level is: \.
 
         Your role is to lead the conversation naturally. Start with a greeting or a question.
         Keep your responses concise and engaging, like a real spoken conversation.
@@ -37,8 +38,7 @@ const createSystemInstruction = (level: string, theme: string): string => {
 
         IMPORTANT: Your entire response MUST be a single, valid JSON object that conforms to the required schema.
         Do not include any text, markdown, or formatting outside of the JSON object.
-        The JSON object must contain "english", "chinese", and an optional "feedback" key.
-    `;
+    \;
 };
 
 export async function onRequest(context: any) {
@@ -59,23 +59,21 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenAI({ apiKey });
-        const systemInstruction = createSystemInstruction(level, theme);
-
-        const chat = ai.chats.create({
-            model: 'gemini-2.5-flash',
-            config: {
-                systemInstruction,
-                responseMimeType: 'application/json',
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: createSystemInstruction(level, theme),
+            generationConfig: {
+                responseMimeType: "application/json",
                 responseSchema: chatResponseSchema,
             }
         });
 
-        const response = await chat.sendMessage({ message: "Start the conversation." });
-        const firstLine = JSON.parse(response.text);
+        const chat = model.startChat();
+        const result = await chat.sendMessage("Start the conversation.");
+        const responseText = result.response.text();
+        const firstLine = JSON.parse(responseText);
 
-        // Return the chat session ID and first message
-        // Note: For stateless functions, we'll need to send full history with each request
         return new Response(JSON.stringify({
             success: true,
             firstMessage: firstLine
