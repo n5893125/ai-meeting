@@ -17,7 +17,7 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenerativeAI({ apiKey });
+        const ai = new GoogleGenAI({ apiKey });
         
         const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',

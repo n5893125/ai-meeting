@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, Type } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const chatResponseSchema = {
     type: Type.OBJECT,
@@ -59,7 +59,7 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenerativeAI({ apiKey });
+        const ai = new GoogleGenAI({ apiKey });
         const systemInstruction = createSystemInstruction(level, theme);
 
         const chat = ai.chats.create({

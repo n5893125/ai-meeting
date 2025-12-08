@@ -18,7 +18,7 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenerativeAI({ apiKey });
+        const ai = new GoogleGenAI({ apiKey });
         const transcript = conversation.map(({ speaker, english }: any) => ({ speaker, english }));
 
         const prompt = `
