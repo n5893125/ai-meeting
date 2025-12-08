@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleGenerativeAI, Type } from "@google/generative-ai";
 
 const chatResponseSchema = {
     type: Type.OBJECT,
