@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/genai";
 
 export async function onRequest(context: any) {
     const { request, env } = context;
@@ -18,7 +18,7 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenAI({ apiKey });
+        const ai = new GoogleGenerativeAI({ apiKey });
         const transcript = conversation.map(({ speaker, english }: any) => ({ speaker, english }));
 
         const prompt = `
