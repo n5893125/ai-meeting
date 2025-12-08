@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/generative-ai";
 
 const chatResponseSchema = {
     type: Type.OBJECT,
@@ -94,3 +94,4 @@ export async function onRequest(context: any) {
         });
     }
 }
+
