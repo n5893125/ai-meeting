@@ -12,7 +12,7 @@ export async function onRequest(context: any) {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const prompt = \Analyze this conversation history and provide a learning report: \\;
+        const prompt = "Analyze this conversation history and provide a learning report: " + JSON.stringify(history);
         const result = await model.generateContent(prompt);
         const report = result.response.text();
 

@@ -21,11 +21,9 @@ const chatResponseSchema = {
 };
 
 const createSystemInstruction = (level: string, theme: string): string => {
-    return \
-        You are an English teacher conducting a practice conversation with a student.
-        Topic: \. Level: \.
-        Respond in JSON format with 'feedback', 'english', and 'chinese'.
-    \;
+    return "You are an English teacher conducting a practice conversation with a student.\\n" +
+           "Topic: " + theme + ". Level: " + level + ".\\n" +
+           "Respond in JSON format with 'feedback', 'english', and 'chinese'.";
 };
 
 export async function onRequest(context: any) {
@@ -51,10 +49,6 @@ export async function onRequest(context: any) {
             }
         });
 
-        // Convert history to Gemini format if needed, or start new chat
-        // For simplicity in this stateless function, we might just send the history as context
-        // But startChat expects history in a specific format.
-        // Simplified approach:
         const chat = model.startChat({
              history: history ? history.map((h: any) => ({
                  role: h.role === 'user' ? 'user' : 'model',

@@ -5,7 +5,7 @@ const chatResponseSchema = {
     properties: {
         feedback: {
             type: SchemaType.STRING,
-            description: "Concise feedback on the user's previous sentence, correcting grammar or suggesting more natural phrasing. If there are no errors, say something encouraging. This can be null if it's the first turn.",
+            description: "Concise feedback on the user's previous sentence.",
             nullable: true
         },
         english: {
@@ -21,24 +21,19 @@ const chatResponseSchema = {
 };
 
 const createSystemInstruction = (level: string, theme: string): string => {
-    return \
-        You are an English teacher conducting a practice conversation with a student in a language learning app.
-        The user is a Traditional Chinese speaker.
-        The conversation topic is: \.
-        The student's English difficulty level is: \.
-
-        Your role is to lead the conversation naturally. Start with a greeting or a question.
-        Keep your responses concise and engaging, like a real spoken conversation.
-        Ask questions to encourage the user to speak.
-        Wait for the user's response before continuing.
-        
-        After the user speaks, your response must do two things:
-        1. (In the 'feedback' field) Provide brief, encouraging feedback on their sentence. Correct any grammatical errors or suggest more natural phrasing. If their English is perfect, give them a compliment.
-        2. (In the 'english' and 'chinese' fields) Continue the conversation with your next line.
-
-        IMPORTANT: Your entire response MUST be a single, valid JSON object that conforms to the required schema.
-        Do not include any text, markdown, or formatting outside of the JSON object.
-    \;
+    return "You are an English teacher conducting a practice conversation with a student in a language learning app.\\n" +
+           "The user is a Traditional Chinese speaker.\\n" +
+           "The conversation topic is: " + theme + ".\\n" +
+           "The student's English difficulty level is: " + level + ".\\n\\n" +
+           "Your role is to lead the conversation naturally. Start with a greeting or a question.\\n" +
+           "Keep your responses concise and engaging, like a real spoken conversation.\\n" +
+           "Ask questions to encourage the user to speak.\\n" +
+           "Wait for the user's response before continuing.\\n\\n" +
+           "After the user speaks, your response must do two things:\\n" +
+           "1. (In the 'feedback' field) Provide brief, encouraging feedback on their sentence. Correct any grammatical errors or suggest more natural phrasing. If their English is perfect, give them a compliment.\\n" +
+           "2. (In the 'english' and 'chinese' fields) Continue the conversation with your next line.\\n\\n" +
+           "IMPORTANT: Your entire response MUST be a single, valid JSON object that conforms to the required schema.\\n" +
+           "Do not include any text, markdown, or formatting outside of the JSON object.";
 };
 
 export async function onRequest(context: any) {
