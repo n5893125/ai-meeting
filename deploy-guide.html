@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meeting - 部署指南</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+            border-radius: 5px;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .important {
+            background: #fff3cd;
+            border-left-color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            border: 1px solid #28a745;
+        }
+        code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .warning {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AI Meeting - Cloudflare Pages 部署指南</h1>
+        
+        <div class="step success">
+            <h3>✅ 準備工作已完成</h3>
+            <ul>
+                <li>✅ 專案代碼已重構（後端 API 安全架構）</li>
+                <li>✅ Node.js 和 npm 已安裝</li>
+                <li>✅ Cloudflare 帳戶已登入</li>
+            </ul>
+        </div>
+
+        <h2>📋 部署步驟</h2>
+
+        <div class="step">
+            <h3>步驟 1: 先完成人機驗證</h3>
+            <p>在您的瀏覽器中完成 Cloudflare 的人機驗證（如果還在驗證頁面）。</p>
+        </div>
+
+        <div class="step">
+            <h3>步驟 2: 選擇部署方式</h3>
+            <p>由於技術限制，推薦使用以下方式：</p>
+            
+            <h4>方式 A: 使用 GitHub（推薦）⭐</h4>
+            <ol>
+                <li>下載並安裝 <a href="https://desktop.github.com/" target="_blank">GitHub Desktop</a></li>
+                <li>在 GitHub Desktop 中：
+                    <ul>
+                        <li>File → Add local repository</li>
+                        <li>選擇專案資料夾</li>
+                        <li>如果不是 Git 儲存庫，點擊 "create a repository"</li>
+                        <li>點擊 "Publish repository"</li>
+                        <li>Repository name: <code>ai-meeting</code></li>
+                    </ul>
+                </li>
+                <li>在 Cloudflare Dashboard：
+                    <ul>
+                        <li>Workers & Pages → Create → Pages → Connect to Git</li>
+                        <li>選擇 GitHub 並授權</li>
+                        <li>選擇 <code>ai-meeting</code> 儲存庫</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h4>方式 B: 使用命令列（如果可行）</h4>
+            <p>在專案目錄執行：</p>
+            <div class="code-block">
+git init<br>
+git add .<br>
+git commit -m "Initial commit for Cloudflare Pages"<br>
+git remote add origin https://github.com/YOUR_USERNAME/ai-meeting.git<br>
+git push -u origin main
+            </div>
+        </div>
+
+        <div class="step important">
+            <h3>步驟 3: 配置建置設定</h3>
+            <p>在 Cloudflare Pages 設定中填寫：</p>
+            <ul>
+                <li><strong>Project name:</strong> <code>ai-meeting</code></li>
+                <li><strong>Production branch:</strong> <code>main</code></li>
+                <li><strong>Build command:</strong><br>
+                    <code>npm install && cd functions && npm install && cd .. && npm run build</code>
+                </li>
+                <li><strong>Build output directory:</strong> <code>dist</code></li>
+            </ul>
+        </div>
+
+        <div class="step important">
+            <h3>步驟 4: 設置 API 金鑰（重要！）</h3>
+            <ol>
+                <li>獲取 Gemini API Key:
+                    <ul>
+                        <li>訪問 <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></li>
+                        <li>點擊 "Create API key"</li>
+                        <li>複製您的 API key</li>
+                    </ul>
+                </li>
+                <li>在 Cloudflare Pages:
+                    <ul>
+                        <li>進入專案 Settings → Environment variables</li>
+                        <li>添加變數：
+                            <ul>
+                                <li>Name: <code>GEMINI_API_KEY</code></li>
+                                <li>Value: 貼上您的 API key</li>
+                            </ul>
+                        </li>
+                        <li>點擊 Save</li>
+                    </ul>
+                </li>
+                <li>重新部署：
+                    <ul>
+                        <li>Deployments → 最新部署 → ⋯ → Retry deployment</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="step success">
+            <h3>步驟 5: 測試應用程式</h3>
+            <p>部署成功後，訪問您的 URL（類似 <code>https://ai-meeting.pages.dev</code>）並測試：</p>
+            <ul>
+                <li>首頁載入</li>
+                <li>選擇主題和難度</li>
+                <li>AI 老師圖像生成</li>
+                <li>語音對話功能</li>
+                <li>學習報告生成</li>
+            </ul>
+        </div>
+
+        <h2>🔗 快速連結</h2>
+        <div class="step">
+            <button onclick="window.open('https://dash.cloudflare.com/', '_blank')">打開 Cloudflare Dashboard</button>
+            <button onclick="window.open('https://github.com/new', '_blank')">創建 GitHub 儲存庫</button>
+            <button onclick="window.open('https://desktop.github.com/', '_blank')">下載 GitHub Desktop</button>
+            <button onclick="window.open('https://aistudio.google.com/apikey', '_blank')">獲取 Gemini API Key</button>
+        </div>
+
+        <div class="step warning">
+            <h3>⚠️ 常見問題</h3>
+            <p><strong>Q: 為什麼不能自動部署？</strong></p>
+            <p>A: 由於您的系統是 Windows ARM64，Wrangler CLI 不支援。且專案位於 UNC 路徑，某些命令列工具無法正常運作。</p>
+            
+            <p><strong>Q: 建置失敗怎麼辦？</strong></p>
+            <p>A: 檢查 Cloudflare 的建置日誌，確認 functions/package.json 已包含在儲存庫中。</p>
+            
+            <p><strong>Q: API 錯誤 "API key not configured"？</strong></p>
+            <p>A: 確認已在環境變數中添加 GEMINI_API_KEY 並重新部署。</p>
+        </div>
+
+        <div class="step">
+            <h3>📚 更多文件</h3>
+            <p>在專案目錄中，您可以查看：</p>
+            <ul>
+                <li><code>VISUAL_DEPLOY_GUIDE.md</code> - 詳細視覺化指南</li>
+                <li><code>DEPLOY_CHECKLIST.md</code> - 部署檢查清單</li>
+                <li><code>DEPLOYMENT.md</code> - 完整技術文件</li>
+                <li><code>REFACTORING_SUMMARY.md</code> - 重構總結</li>
+            </ul>
+        </div>
+
+        <div class="step success">
+            <h3>🎉 完成後</h3>
+            <p>部署成功後，您將擁有一個完全安全的 AI 英語口說練習應用：</p>
+            <ul>
+                <li>✅ API 金鑰安全儲存在伺服器端</li>
+                <li>✅ 自動 SSL 憑證</li>
+                <li>✅ 全球 CDN 加速</li>
+                <li>✅ 自動更新（Git 推送後）</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

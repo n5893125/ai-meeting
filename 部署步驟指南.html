@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Cloudflare 部署指南 - 英語口說練習</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -50%;
+            right: 50%;
+            height: 3px;
+            background: #dee2e6;
+            z-index: 0;
+        }
+
+        .progress-step:first-child::before {
+            display: none;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dee2e6;
+            color: #6c757d;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-step.active .step-circle {
+            background: #667eea;
+            color: white;
+        }
+
+        .progress-step.completed .step-circle {
+            background: #28a745;
+            color: white;
+        }
+
+        .progress-step.completed::before {
+            background: #28a745;
+        }
+
+        .step-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .step-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .substep {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .substep h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .substep ol,
+        .substep ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .substep li {
+            margin: 10px 0;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .code-label {
+            color: #a0aec0;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .links-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .link-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .link-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .checklist {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .checklist-item:hover {
+            background: #f8f9fa;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .faq {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+
+        .faq h4 {
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        .faq p {
+            color: #28a745;
+            line-height: 1.6;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Cloudflare 部署指南</h1>
+            <p>英語口說練習應用程式 - 透過 GitHub + Cloudflare Pages</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-step" id="step1-progress">
+                <div class="step-circle">1</div>
+                <div class="step-label">上傳 GitHub</div>
+            </div>
+            <div class="progress-step" id="step2-progress">
+                <div class="step-circle">2</div>
+                <div class="step-label">連接部署</div>
+            </div>
+            <div class="progress-step" id="step3-progress">
+                <div class="step-circle">3</div>
+                <div class="step-label">設置 API</div>
+            </div>
+            <div class="progress-step" id="step4-progress">
+                <div class="step-circle">✓</div>
+                <div class="step-label">完成</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Step 1: GitHub -->
+            <div class="step-section" id="step1">
+                <h2><span class="emoji">📦</span>步驟 1：上傳專案到 GitHub</h2>
+
+                <div class="substep">
+                    <h3>1.1 下載並安裝 GitHub Desktop</h3>
+                    <div class="info">
+                        <strong>🔗 已為您打開下載頁面：</strong>
+                        <a href="https://desktop.github.com/" target="_blank">https://desktop.github.com/</a>
+                    </div>
+                    <ol>
+                        <li>點擊 "Download for Windows" 下載安裝程式</li>
+                        <li>執行安裝程式，按照指示完成安裝</li>
+                        <li>安裝完成後，開啟 GitHub Desktop</li>
+                    </ol>
+                </div>
+
+                <div class="substep">
+                    <h3>1.2 登入您的 GitHub 帳號</h3>
+                    <ol>
+                        <li>在 GitHub Desktop 中，點擊 <strong>File → Options</strong></li>
+                        <li>選擇 <strong>Accounts</strong> 標籤</li>
+                        <li>點擊 <strong>Sign in to GitHub.com</strong></li>
+                        <li>在瀏覽器中登入您的 GitHub 帳號（如果沒有帳號，請先註冊一個，完全免費）</li>
+                        <li>授權 GitHub Desktop 存取您的帳號</li>
+                    </ol>
+                    <div class="warning">
+                        <strong>⚠️ 沒有 GitHub 帳號？</strong><br>
+                        請先到 <a href="https://github.com/signup" target="_blank">https://github.com/signup</a> 註冊一個免費帳號
+                    </div>
+                </div>
+
+                <div class="substep">
+                    <h3>1.3 添加您的專案</h3>
+                    <ol>
+                        <li>在 GitHub Desktop 中，點擊 <strong>File → Add local repository</strong></li>
+                        <li>點擊 <strong>Choose...</strong> 按鈕</li>
+                        <li>瀏覽並選擇專案目錄：
+                            <div class="code-block">
+                                <div class="code-label">專案路徑：</div>
+                                \\mac\Home\Downloads\英語口說練習-(english-speaking-practice)
+                            </div>
+                        </li>
+                        <li>如果顯示 "This directory does not appear to be a Git repository"，點擊 <strong>create a
+                                repository</strong></li>
+                        <li>在彈出的視窗中，保持預設設定，點擊 <strong>Create Repository</strong></li>
+                    </ol>
+                </div>
+
+                <div class="substep">
+                    <h3>1.4 發布到 GitHub</h3>
+                    <ol>
+                        <li>在左下角的 "Summary" 欄位輸入：
+                            <div class="code-block">Initial commit - Ready for Cloudflare deployment</div>
+                        </li>
+                        <li>點擊 <strong>Commit to main</strong> 按鈕</li>
+                        <li>點擊頂部的 <strong>Publish repository</strong> 按鈕</li>
+                        <li>在彈出視窗中：
+                            <ul>
+                                <li><strong>Name：</strong>保持原名稱或改為 <code>english-speaking-practice</code></li>
+                                <li><strong>Description：</strong>（選填）例如：AI-powered English speaking practice app</li>
+                                <li>可以選擇 "Keep this code private" 保持專案私密</li>
+                            </ul>
+                        </li>
+                        <li>點擊 <strong>Publish Repository</strong></li>
+                    </ol>
+                    <div class="success">
+                        <strong>✅ 等待上傳完成</strong><br>
+                        這可能需要 2-5 分鐘，請耐心等待。上傳完成後會顯示 "Published successfully"
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Cloudflare -->
+            <div class="step-section" id="step2">
+                <h2><span class="emoji">☁️</span>步驟 2：在 Cloudflare 連接並部署</h2>
+
+                <div class="substep">
+                    <h3>2.1 登入 Cloudflare Dashboard</h3>
+                    <div class="info">
+                        <strong>🔗 已為您打開 Cloudflare：</strong>
+                        <a href="https://dash.cloudflare.com/" target="_blank">https://dash.cloudflare.com/</a>
+                    </div>
+                    <ol>
+                        <li>完成 Cloudflare 的人機驗證（如果有）</li>
+                        <li>使用您的電子郵件和密碼登入</li>
+                        <li>如果還沒有 Cloudflare 帳號，請先註冊（免費）</li>
+                    </ol>
+                </div>
+
+                <div class="substep">
+                    <h3>2.2 創建 Pages 專案</h3>
+                    <ol>
+                        <li>在 Cloudflare Dashboard 左側選單，找到並點擊 <strong>Workers & Pages</strong></li>
+                        <li>點擊右上角的 <strong>Create application</strong> 或 <strong>Create</strong> 按鈕</li>
+                        <li>選擇 <strong>Pages</strong> 標籤</li>
+                        <li>點擊 <strong>Connect to Git</strong> 按鈕</li>
+                    </ol>
+                </div>
+
+                <div class="substep">
+                    <h3>2.3 連接 GitHub</h3>
+                    <ol>
+                        <li>選擇 <strong>GitHub</strong> 作為 Git provider</li>
+                        <li>點擊 <strong>Connect GitHub</strong> 並在彈出視窗中授權</li>
+                        <li>選擇您的 GitHub 帳號</li>
+                        <li>選擇 <strong>Only select repositories</strong></li>
+                        <li>找到並選擇您剛才上傳的儲存庫（英語口說練習 或 english-speaking-practice）</li>
+                        <li>點擊 <strong>Install & Authorize</strong></li>
+                    </ol>
+                </div>
+
+                <div class="substep">
+                    <h3>2.4 配置建置設定（⚠️ 重要！）</h3>
+                    <div class="warning">
+                        <strong>⚠️ 請完全按照以下內容填寫，不要遺漏任何字元！</strong>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-label">Project name（專案名稱）：</div>
+                        english-speaking-practice
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-label">Production branch（生產分支）：</div>
+                        main
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-label">Framework preset（框架預設）：</div>
+                        None（保持預設）
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-label">Build command（建置命令）：</div>
+                        npm install && cd functions && npm install && cd .. && npm run build
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-label">Build output directory（建置輸出目錄）：</div>
+                        dist
+                    </div>
+
+                    <ol start="7">
+                        <li>確認所有設定正確後，點擊 <strong>Save and Deploy</strong></li>
+                        <li>等待建置完成（約 2-5 分鐘）
+                            <div class="info">
+                                <strong>💡 提示：</strong>您可以查看建置日誌，了解進度。如果建置失敗，請檢查錯誤訊息。
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Step 3: API Key -->
+            <div class="step-section" id="step3">
+                <h2><span class="emoji">🔑</span>步驟 3：設置 Gemini API 金鑰</h2>
+
+                <div class="substep">
+                    <h3>3.1 獲取 Gemini API Key</h3>
+                    <div class="info">
+                        <strong>🔗 已為您打開 API Key 頁面：</strong>
+                        <a href="https://aistudio.google.com/apikey"
+                            target="_blank">https://aistudio.google.com/apikey</a>
+                    </div>
+                    <ol>
+                        <li>登入您的 Google 帳號</li>
+                        <li>點擊 <strong>Create API key</strong> 按鈕
+                            <ul>
+                                <li>如果已有 API key，也可以使用現有的</li>
+                            </ul>
+                        </li>
+                        <li>選擇一個 Google Cloud Project（或創建新的）</li>
+                        <li>複製生成的 API key（格式類似：<code>AIzaSy...</code>）
+                            <div class="warning">
+                                <strong>⚠️ 重要：</strong>請妥善保管您的 API key，不要公開分享！
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="substep">
+                    <h3>3.2 在 Cloudflare 設置環境變數</h3>
+                    <ol>
+                        <li>回到 Cloudflare Pages 專案頁面</li>
+                        <li>點擊 <strong>Settings</strong> 標籤</li>
+                        <li>在左側選單中選擇 <strong>Environment variables</strong></li>
+                        <li>在 <strong>Production (and preview)</strong> 區塊，點擊 <strong>Add variable</strong></li>
+                        <li>填寫環境變數：
+                            <div class="code-block">
+                                <div class="code-label">Variable name（變數名稱）：</div>
+                                GEMINI_API_KEY
+                            </div>
+                            <div class="code-block">
+                                <div class="code-label">Value（值）：</div>
+                                [貼上您剛才複製的 API key]
+                            </div>
+                        </li>
+                        <li>點擊 <strong>Save</strong> 按鈕</li>
+                    </ol>
+                    <div class="warning">
+                        <strong>⚠️ 變數名稱必須完全一致：</strong><code>GEMINI_API_KEY</code>（區分大小寫）
+                    </div>
+                </div>
+
+                <div class="substep">
+                    <h3>3.3 重新部署應用</h3>
+                    <ol>
+                        <li>點擊 <strong>Deployments</strong> 標籤</li>
+                        <li>找到最新的部署記錄</li>
+                        <li>點擊右側的 <strong>⋯</strong>（三個點）</li>
+                        <li>選擇 <strong>Retry deployment</strong></li>
+                        <li>等待重新部署完成（約 1-2 分鐘）</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Step 4: Complete -->
+            <div class="step-section" id="step4">
+                <h2><span class="emoji">🎉</span>步驟 4：完成！測試您的應用</h2>
+
+                <div class="success">
+                    <strong>✅ 恭喜！您的應用已成功部署到 Cloudflare！</strong><br>
+                    部署完成後，Cloudflare 會為您生成一個 URL。
+                </div>
+
+                <div class="substep">
+                    <h3>獲取您的應用 URL</h3>
+                    <ol>
+                        <li>在 Cloudflare Pages 專案頁面頂部，您會看到：
+                            <div class="code-block">
+                                https://english-speaking-practice.pages.dev
+                            </div>
+                            或類似的 URL
+                        </li>
+                        <li>點擊該 URL 訪問您的應用</li>
+                        <li>測試所有功能：
+                            <ul>
+                                <li>✅ 頁面是否正常載入</li>
+                                <li>✅ AI 對話功能是否正常</li>
+                                <li>✅ 所有按鈕和互動是否正常</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="info">
+                    <strong>💡 自訂網域（選用）</strong><br>
+                    如果您想使用自己的網域名稱，可以在 Cloudflare Pages 的 <strong>Settings → Custom domains</strong> 中設置。
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="step-section">
+                <h2><span class="emoji">🔗</span>快速連結</h2>
+                <div class="links-section">
+                    <a href="https://desktop.github.com/" target="_blank" class="link-card">
+                        <h4>📦 GitHub Desktop</h4>
+                        <p>下載 GitHub Desktop</p>
+                    </a>
+                    <a href="https://dash.cloudflare.com/" target="_blank" class="link-card">
+                        <h4>☁️ Cloudflare Dashboard</h4>
+                        <p>Cloudflare 控制台</p>
+                    </a>
+                    <a href="https://aistudio.google.com/apikey" target="_blank" class="link-card">
+                        <h4>🔑 Google AI Studio</h4>
+                        <p>獲取 Gemini API Key</p>
+                    </a>
+                    <a href="https://github.com/signup" target="_blank" class="link-card">
+                        <h4>🆕 註冊 GitHub</h4>
+                        <p>創建免費 GitHub 帳號</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Checklist -->
+            <div class="step-section">
+                <h2><span class="emoji">📋</span>部署檢查清單</h2>
+                <div class="checklist">
+                    <h3>步驟 1 - GitHub</h3>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check1-1">
+                        <span>已下載並安裝 GitHub Desktop</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check1-2">
+                        <span>已登入 GitHub 帳號</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check1-3">
+                        <span>已添加專案到 GitHub Desktop</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check1-4">
+                        <span>已發布專案到 GitHub</span>
+                    </label>
+
+                    <h3 style="margin-top: 20px;">步驟 2 - Cloudflare</h3>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check2-1">
+                        <span>已登入 Cloudflare Dashboard</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check2-2">
+                        <span>已連接 GitHub 帳號</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check2-3">
+                        <span>已選擇正確的 GitHub 儲存庫</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check2-4">
+                        <span>已正確配置建置設定</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check2-5">
+                        <span>建置已成功完成</span>
+                    </label>
+
+                    <h3 style="margin-top: 20px;">步驟 3 - API Key</h3>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check3-1">
+                        <span>已獲取 Gemini API Key</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check3-2">
+                        <span>已在 Cloudflare 設置環境變數 GEMINI_API_KEY</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check3-3">
+                        <span>已重新部署應用</span>
+                    </label>
+
+                    <h3 style="margin-top: 20px;">步驟 4 - 測試</h3>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check4-1">
+                        <span>應用可以正常訪問</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="check4-2">
+                        <span>AI 功能正常運作</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="step-section">
+                <h2><span class="emoji">❓</span>常見問題</h2>
+
+                <div class="faq">
+                    <h4>Q: GitHub Desktop 無法添加儲存庫？</h4>
+                    <p>A: 如果提示 "not a Git repository"，請選擇 "create a repository" 而不是 "add repository"。</p>
+                </div>
+
+                <div class="faq">
+                    <h4>Q: Cloudflare 建置失敗？</h4>
+                    <p>A: 請檢查建置日誌中的錯誤訊息。最常見的原因是 Build command 或 Build output directory 填寫錯誤。請確保完全按照指南填寫。</p>
+                </div>
+
+                <div class="faq">
+                    <h4>Q: API 錯誤 "API key not configured"？</h4>
+                    <p>A: 確認環境變數名稱是 <code>GEMINI_API_KEY</code>（區分大小寫），然後重新部署。</p>
+                </div>
+
+                <div class="faq">
+                    <h4>Q: 找不到 Workers & Pages 選單？</h4>
+                    <p>A: 在某些 Cloudflare 介面版本中，可能直接叫 "Pages" 或位於 "More" 選單下。請在左側導航或頂部選單中尋找。</p>
+                </div>
+
+                <div class="faq">
+                    <h4>Q: 部署後 API 仍然不工作？</h4>
+                    <p>A: 確保在設置環境變數後有重新部署。環境變數的變更需要重新部署才會生效。</p>
+                </div>
+
+                <div class="faq">
+                    <h4>Q: 可以保持 GitHub 儲存庫私密嗎？</h4>
+                    <p>A: 可以的！在發布到 GitHub 時，勾選 "Keep this code private" 即可。Cloudflare 仍然可以訪問私密儲存庫。</p>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="success" style="margin-top: 40px; padding: 30px;">
+                <h2 style="margin-bottom: 15px;">🎉 預估總時間：15-20 分鐘</h2>
+                <p style="font-size: 1.1em; line-height: 1.6;">
+                    <strong>難度：</strong>簡單（只需要點擊和複製貼上）<br>
+                    <strong>費用：</strong>完全免費（GitHub、Cloudflare、Google AI Studio 都提供免費方案）<br>
+                    <strong>維護：</strong>之後只需在 GitHub Desktop 中 Push 更新即可自動重新部署
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Save checkbox state to localStorage
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            // Load saved state
+            const savedState = localStorage.getItem(checkbox.id);
+            if (savedState === 'true') {
+                checkbox.checked = true;
+            }
+
+            // Save state on change
+            checkbox.addEventListener('change', () => {
+                localStorage.setItem(checkbox.id, checkbox.checked);
+                updateProgress();
+            });
+        });
+
+        // Update progress bar based on checkboxes
+        function updateProgress() {
+            const step1Checks = ['check1-1', 'check1-2', 'check1-3', 'check1-4'];
+            const step2Checks = ['check2-1', 'check2-2', 'check2-3', 'check2-4', 'check2-5'];
+            const step3Checks = ['check3-1', 'check3-2', 'check3-3'];
+            const step4Checks = ['check4-1', 'check4-2'];
+
+            const step1Complete = step1Checks.every(id => document.getElementById(id)?.checked);
+            const step2Complete = step2Checks.every(id => document.getElementById(id)?.checked);
+            const step3Complete = step3Checks.every(id => document.getElementById(id)?.checked);
+            const step4Complete = step4Checks.every(id => document.getElementById(id)?.checked);
+
+            updateStepProgress('step1-progress', step1Complete);
+            updateStepProgress('step2-progress', step2Complete);
+            updateStepProgress('step3-progress', step3Complete);
+            updateStepProgress('step4-progress', step4Complete);
+        }
+
+        function updateStepProgress(stepId, isComplete) {
+            const step = document.getElementById(stepId);
+            if (isComplete) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            } else {
+                step.classList.remove('completed');
+            }
+        }
+
+        // Initialize progress on load
+        updateProgress();
+
+        // Mark current step as active
+        document.getElementById('step1-progress').classList.add('active');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "英語口說練習 (English Speaking Practice)",
+  "description": "An application to practice English conversation with AI-generated dialogues, customizable by duration, difficulty, and topic. Features simulated teachers with different voices and a toggleable bilingual transcript. It also includes speech recognition for user practice.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

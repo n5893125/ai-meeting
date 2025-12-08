@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/generative-ai";
 
 export async function onRequest(context: any) {
     const { request, env } = context;
@@ -30,10 +30,10 @@ export async function onRequest(context: any) {
             Based on the following conversation transcript, provide a helpful and encouraging report in Traditional Chinese.
 
             The report should have the following sections, clearly formatted with headings:
-            1.  **總結 (Summary):** A brief, positive summary of the student's performance.
-            2.  **語法修正 (Grammar Corrections):** Point out 1-3 key grammatical mistakes. For each, show the original sentence, the corrected sentence, and a brief explanation in Chinese. If there were no major mistakes, praise them for their accuracy.
-            3.  **詞彙與片語建議 (Vocabulary & Phrase Suggestions):** Suggest 1-3 alternative words or more natural phrases the student could have used.
-            4.  **鼓勵的話 (Encouragement):** End with a short, encouraging message to motivate them for their next practice session.
+            1.  **總�? (Summary):** A brief, positive summary of the student's performance.
+            2.  **語�?修正 (Grammar Corrections):** Point out 1-3 key grammatical mistakes. For each, show the original sentence, the corrected sentence, and a brief explanation in Chinese. If there were no major mistakes, praise them for their accuracy.
+            3.  **詞�??��?語建�?(Vocabulary & Phrase Suggestions):** Suggest 1-3 alternative words or more natural phrases the student could have used.
+            4.  **鼓勵?�話 (Encouragement):** End with a short, encouraging message to motivate them for their next practice session.
 
             Keep the tone friendly and supportive.
 

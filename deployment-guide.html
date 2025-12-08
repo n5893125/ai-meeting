@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meeting - Cloudflare 部署指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .step {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: #666;
+            margin-left: 56px;
+            margin-top: 0.5rem;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block code {
+            color: #68d391;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .warning-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-group {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Meeting</h1>
+            <p>Cloudflare Pages 部署指南</p>
+        </div>
+
+        <div class="content">
+            <div class="success">
+                <strong>✅ 專案已準備就緒！</strong>
+                <p>您的專案已成功構建，所有檔案都在 <code>dist</code> 資料夾中。</p>
+            </div>
+
+            <h2 style="margin: 2rem 0 1rem 0;">📋 部署步驟（推薦方法）</h2>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    登入 Cloudflare Dashboard
+                </div>
+                <div class="step-description">
+                    前往 <a href="https://dash.cloudflare.com/" target="_blank">https://dash.cloudflare.com/</a> 並登入您的帳號
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    創建新的 Pages 專案
+                </div>
+                <div class="step-description">
+                    <ol>
+                        <li>點擊左側選單的 <strong>Workers & Pages</strong></li>
+                        <li>點擊 <strong>Create application</strong></li>
+                        <li>選擇 <strong>Pages</strong> 標籤</li>
+                        <li>點擊 <strong>Upload assets</strong></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    上傳專案檔案
+                </div>
+                <div class="step-description">
+                    <p><strong>專案名稱：</strong> <code>ai-meeting</code></p>
+                    <p><strong>檔案位置：</strong></p>
+                    <div class="code-block">
+                        C:\Users\kyhsu\.gemini\ai-meeting-build\dist
+                    </div>
+                    <p>將 dist 資料夾中的所有檔案拖曳到上傳區域，然後點擊 <strong>Deploy site</strong></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    設定環境變數 ⚠️ 重要！
+                </div>
+                <div class="step-description">
+                    <div class="warning">
+                        <div class="warning-title">⚠️ 這個步驟必須完成，否則應用無法正常運作！</div>
+                        <p>您需要設定 Gemini API Key 作為環境變數</p>
+                    </div>
+                    <ol>
+                        <li>部署完成後，點擊專案的 <strong>Settings</strong></li>
+                        <li>選擇 <strong>Environment variables</strong></li>
+                        <li>點擊 <strong>Add variable</strong></li>
+                        <li>設定變數：
+                            <ul>
+                                <li><strong>變數名稱：</strong> <code>GEMINI_API_KEY</code></li>
+                                <li><strong>變數類型：</strong> 選擇 <code>Encrypted</code></li>
+                                <li><strong>變數值：</strong> 貼上您的 Gemini API Key</li>
+                                <li><strong>環境：</strong> 同時勾選 <code>Production</code> 和 <code>Preview</code></li>
+                            </ul>
+                        </li>
+                        <li>點擊 <strong>Save</strong></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">5</span>
+                    重新部署專案
+                </div>
+                <div class="step-description">
+                    <ol>
+                        <li>返回專案的 <strong>Deployments</strong> 頁面</li>
+                        <li>點擊最新部署旁的 <strong>...</strong> 選單</li>
+                        <li>選擇 <strong>Retry deployment</strong></li>
+                    </ol>
+                    <div class="success">
+                        <strong>🎉 完成！</strong> 您的應用現在應該可以正常運作了！
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <a href="https://dash.cloudflare.com/" class="btn" target="_blank">
+                    🌐 打開 Cloudflare Dashboard
+                </a>
+                <a href="file:///C:/Users/kyhsu/.gemini/ai-meeting-build/dist" class="btn">
+                    📁 打開 dist 資料夾
+                </a>
+            </div>
+
+            <h2 style="margin: 2rem 0 1rem 0;">✅ 部署後檢查清單</h2>
+            <ul class="checklist">
+                <li>專案已成功部署到 Cloudflare Pages</li>
+                <li>專案名稱設為 <code>ai-meeting</code></li>
+                <li><code>GEMINI_API_KEY</code> 環境變數已設定</li>
+                <li>環境變數已套用到 Production 和 Preview 環境</li>
+                <li>已重新部署以使環境變數生效</li>
+                <li>測試網站可以正常訪問</li>
+                <li>測試 AI 功能正常運作</li>
+            </ul>
+
+            <h2 style="margin: 2rem 0 1rem 0;">🔑 如何取得 Gemini API Key</h2>
+            <div class="info-box">
+                <ol>
+                    <li>前往 <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a></li>
+                    <li>登入您的 Google 帳號</li>
+                    <li>點擊 <strong>Get API key</strong></li>
+                    <li>創建新的 API key</li>
+                    <li>複製 API key 並保存在安全的地方</li>
+                </ol>
+            </div>
+
+            <h2 style="margin: 2rem 0 1rem 0;">📦 專案架構</h2>
+            <div class="info-box">
+                <p><strong>前端：</strong> React + Vite + TypeScript</p>
+                <p><strong>後端：</strong> Cloudflare Pages Functions</p>
+                <p><strong>AI 服務：</strong> Google Gemini API</p>
+                <br>
+                <p><strong>API Endpoints：</strong></p>
+                <ul>
+                    <li><code>/api/generate-image</code> - 生成 AI 老師頭像</li>
+                    <li><code>/api/chat-create</code> - 創建新的對話</li>
+                    <li><code>/api/chat-message</code> - 發送訊息給 AI</li>
+                    <li><code>/api/generate-report</code> - 生成學習報告</li>
+                </ul>
+            </div>
+
+            <h2 style="margin: 2rem 0 1rem 0;">🔧 故障排除</h2>
+            <div class="step">
+                <div class="step-title">❌ API 呼叫失敗</div>
+                <div class="step-description">
+                    <p><strong>可能原因：</strong></p>
+                    <ul>
+                        <li><code>GEMINI_API_KEY</code> 未設定或設定錯誤</li>
+                        <li>API Key 無效或已過期</li>
+                        <li>API 配額已用盡</li>
+                    </ul>
+                    <p><strong>解決方案：</strong></p>
+                    <ol>
+                        <li>確認環境變數已正確設定</li>
+                        <li>確認 API Key 有效</li>
+                        <li>檢查 Google AI Studio 的使用配額</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">❌ Functions 無法運作</div>
+                <div class="step-description">
+                    <p><strong>解決方案：</strong></p>
+                    <ol>
+                        <li>在 Cloudflare Dashboard 中檢查 Functions 標籤</li>
+                        <li>確認所有 Functions 都已正確部署</li>
+                        <li>查看 Functions 的即時日誌以找出錯誤</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🚀 祝您部署順利！</p>
+            <p>如有問題，請參考 <a href="https://developers.cloudflare.com/pages/" target="_blank">Cloudflare Pages 文檔</a></p>
+        </div>
+    </div>
+</body>
+
+</html>
