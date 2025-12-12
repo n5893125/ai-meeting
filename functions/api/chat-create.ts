@@ -1,19 +1,18 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 const chatResponseSchema = {
-    type: SchemaType.OBJECT,
+    type: Type.OBJECT,
     properties: {
         feedback: {
-            type: SchemaType.STRING,
-            description: "Concise feedback on the user's previous sentence.",
-            nullable: true
+            type: Type.STRING,
+            description: "Concise feedback on the user's previous sentence, correcting grammar or suggesting more natural phrasing. If there are no errors, say something encouraging. This can be null if it's the first turn.",
         },
         english: {
-            type: SchemaType.STRING,
+            type: Type.STRING,
             description: "The dialogue line in English.",
         },
         chinese: {
-            type: SchemaType.STRING,
+            type: Type.STRING,
             description: "The dialogue line in Traditional Chinese.",
         },
     },
@@ -21,19 +20,25 @@ const chatResponseSchema = {
 };
 
 const createSystemInstruction = (level: string, theme: string): string => {
-    return "You are an English teacher conducting a practice conversation with a student in a language learning app.\\n" +
-           "The user is a Traditional Chinese speaker.\\n" +
-           "The conversation topic is: " + theme + ".\\n" +
-           "The student's English difficulty level is: " + level + ".\\n\\n" +
-           "Your role is to lead the conversation naturally. Start with a greeting or a question.\\n" +
-           "Keep your responses concise and engaging, like a real spoken conversation.\\n" +
-           "Ask questions to encourage the user to speak.\\n" +
-           "Wait for the user's response before continuing.\\n\\n" +
-           "After the user speaks, your response must do two things:\\n" +
-           "1. (In the 'feedback' field) Provide brief, encouraging feedback on their sentence. Correct any grammatical errors or suggest more natural phrasing. If their English is perfect, give them a compliment.\\n" +
-           "2. (In the 'english' and 'chinese' fields) Continue the conversation with your next line.\\n\\n" +
-           "IMPORTANT: Your entire response MUST be a single, valid JSON object that conforms to the required schema.\\n" +
-           "Do not include any text, markdown, or formatting outside of the JSON object.";
+    return `
+        You are an English teacher conducting a practice conversation with a student in a language learning app.
+        The user is a Traditional Chinese speaker.
+        The conversation topic is: ${theme}.
+        The student's English difficulty level is: ${level}.
+
+        Your role is to lead the conversation naturally. Start with a greeting or a question.
+        Keep your responses concise and engaging, like a real spoken conversation.
+        Ask questions to encourage the user to speak.
+        Wait for the user's response before continuing.
+        
+        After the user speaks, your response must do two things:
+        1. (In the 'feedback' field) Provide brief, encouraging feedback on their sentence. Correct any grammatical errors or suggest more natural phrasing. If their English is perfect, give them a compliment.
+        2. (In the 'english' and 'chinese' fields) Continue the conversation with your next line.
+
+        IMPORTANT: Your entire response MUST be a single, valid JSON object that conforms to the required schema.
+        Do not include any text, markdown, or formatting outside of the JSON object.
+        The JSON object must contain "english", "chinese", and an optional "feedback" key.
+    `;
 };
 
 export async function onRequest(context: any) {
@@ -54,21 +59,23 @@ export async function onRequest(context: any) {
             });
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: createSystemInstruction(level, theme),
-            generationConfig: {
-                responseMimeType: "application/json",
+        const ai = new GoogleGenAI({ apiKey });
+        const systemInstruction = createSystemInstruction(level, theme);
+
+        const chat = ai.chats.create({
+            model: 'gemini-2.5-flash',
+            config: {
+                systemInstruction,
+                responseMimeType: 'application/json',
                 responseSchema: chatResponseSchema,
             }
         });
 
-        const chat = model.startChat();
-        const result = await chat.sendMessage("Start the conversation.");
-        const responseText = result.response.text();
-        const firstLine = JSON.parse(responseText);
+        const response = await chat.sendMessage({ message: "Start the conversation." });
+        const firstLine = JSON.parse(response.text);
 
+        // Return the chat session ID and first message
+        // Note: For stateless functions, we'll need to send full history with each request
         return new Response(JSON.stringify({
             success: true,
             firstMessage: firstLine
