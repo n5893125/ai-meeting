@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function onRequest(context: any) {
     const { request, env } = context;
@@ -18,7 +18,9 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenAI({ apiKey });
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
         const transcript = conversation.map(({ speaker, english }: any) => ({ speaker, english }));
 
         const prompt = `
@@ -41,14 +43,12 @@ export async function onRequest(context: any) {
             ${JSON.stringify(transcript, null, 2)}
         `;
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
+        const result = await model.generateContent(prompt);
+        const response = result.response;
 
         return new Response(JSON.stringify({
             success: true,
-            report: response.text
+            report: response.text()
         }), {
             status: 200,
             headers: {

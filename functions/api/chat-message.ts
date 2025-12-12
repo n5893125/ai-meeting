@@ -1,18 +1,18 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 const chatResponseSchema = {
-    type: Type.OBJECT,
+    type: SchemaType.OBJECT,
     properties: {
         feedback: {
-            type: Type.STRING,
+            type: SchemaType.STRING,
             description: "Concise feedback on the user's previous sentence, correcting grammar or suggesting more natural phrasing. If there are no errors, say something encouraging. This can be null if it's the first turn.",
         },
         english: {
-            type: Type.STRING,
+            type: SchemaType.STRING,
             description: "The dialogue line in English.",
         },
         chinese: {
-            type: Type.STRING,
+            type: SchemaType.STRING,
             description: "The dialogue line in Traditional Chinese.",
         },
     },
@@ -59,22 +59,23 @@ export async function onRequest(context: any) {
             });
         }
 
-        const ai = new GoogleGenAI({ apiKey });
-        const systemInstruction = createSystemInstruction(level, theme);
-
-        // Create a new chat with history
-        const chat = ai.chats.create({
-            model: 'gemini-2.5-flash',
-            config: {
-                systemInstruction,
-                responseMimeType: 'application/json',
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            systemInstruction: createSystemInstruction(level, theme),
+            generationConfig: {
+                responseMimeType: "application/json",
                 responseSchema: chatResponseSchema,
             },
+        });
+
+        // Create a new chat with history
+        const chat = model.startChat({
             history: history || []
         });
 
-        const response = await chat.sendMessage({ message });
-        const aiResponse = JSON.parse(response.text);
+        const result = await chat.sendMessage(message);
+        const aiResponse = JSON.parse(result.response.text());
 
         return new Response(JSON.stringify({
             success: true,
